@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div id="start-screen" style="display: none;">
+        <h1>Intro Guesser</h1>
+        <button>Play Game</button>
+        <button>Settings</button>
+    </div>
+
+    <div id="game-screen" style="display: block;">
+        <div class="game-container">
+            
+            <div class="roundscore">
+                <span id="rounds">Round 1/10</span>
+                <span id="score">Score: 1000</span>
+            </div>
+            
+            <div class="main">
+                <div class="timer-box">
+                    <div class="timer-bar"></div>
+                </div>
+            
+                <div class="choices-grid">
+                    <button class="choice-btn" id="choice1">Song Choice A</button>
+                    <button class="choice-btn" id="choice2">Song Choice B</button>
+                    <button class="choice-btn" id="choice3">Song Choice C</button>
+                    <button class="choice-btn" id="choice4">Song Choice D</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>
