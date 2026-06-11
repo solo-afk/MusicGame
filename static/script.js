@@ -1,9 +1,8 @@
-// Hardcoded test playlist to build our logic
 const testPlaylist = [
     {
         title: "Mona Lisa",
         artist: "Dominic Fike",
-        preview_url: "https://www.w3schools.com/html/horse.mp3", // Test audio file
+        preview_url: "https://www.w3schools.com/html/horse.mp3", 
         choices: ["Mona Lisa", "3 Nights", "Babydoll", "Phone Numbers"]
     },
     {
@@ -15,10 +14,10 @@ const testPlaylist = [
     {
         title: "Blinding Lights",
         artist: "The Weeknd",
+        preview_url: "https://www.w3schools.com/html/horse.mp3",
         choices: ["Starboy", "Circles", "Blinding Lights", "Save Your Tears"]
     }
 ];
-
 let currentRound = 0;
 let score = 0;
 let timerInterval;
@@ -66,7 +65,7 @@ choiceBtns.forEach(button => {
         let currentSong = testPlaylist[currentRound];
         if(button.textContent === currentSong.title){
             console.log("Correct!");
-            score += 100;
+            score += 10 * timeLeft;
             scoreDisplay.textContent = "Score: " + score;
             button.style.backgroundColor = "#1DB954";
         } else {
