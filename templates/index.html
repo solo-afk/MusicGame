@@ -5,17 +5,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Music Game</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap" rel="stylesheet">
 </head>
 
 <body>
 
-    <div id="start-screen" style="display: none;">
-        <h1>Intro Guesser</h1>
-        <button>Play Game</button>
-        <button>Settings</button>
+    <div id="start-screen" style="display: block;">
+        <div class="titles">
+            <h1 id="main-title">Beat Shazam</h1>
+        </div>
+        <div class="play-container">
+            {% if is_logged_in %}
+                <button id="play-btn" data-auth="true">Play Game</button>
+            {% else %}
+                <a href="/login" id="play-btn-link">
+                    <button id="play-btn">Play Game</button>
+                </a>
+            {% endif %}
+        </div>
+
+        <div class="nav-btns">
+            <button id="settings-btn">
+                <img src="https://media.istockphoto.com/id/1416937202/vector/settings-or-gear-icon-cog-setting-vector-illustration.jpg?s=612x612&w=0&k=20&c=3vVNW4ssuNPwKUMT5HSMEbUlknZmp5FeEBF1eZTzJYA="
+                     class="settings-container" title="Settings" alt="Settings">
+            </button>
+            {%if is_logged_in%}
+                <a href="/logout" title="Click to Logout">
+                    <div class="pfp-container">
+                        <img src="{{ pfp_url }}" alt="Profile" class="user-avatar">
+                    </div>
+                </a>
+            {% else %}
+                <a href="/login" title="Click to login">
+                    <div class="pfp-container anonymous">
+                        <img src="https://braverplayers.org/wp-content/uploads/2022/09/blank-pfp.png" alt="Anonymous User" class="user-avatar">
+                    </div>
+                </a>
+            {% endif %}
+        </div>
     </div>
 
-    <div id="game-screen" style="display: block;">
+    <div id="game-screen" style="display: none;">
         <div class="game-container">
             
             <div class="roundscore">
@@ -27,6 +59,15 @@
                 <div class="timer-box">
                     <div class="timer-bar"></div>
                 </div>
+
+                <div class="album-pic-container">
+                    <img id="album-cover" 
+                        src="" 
+                        style="width: 100%; 
+                                height: 100%; 
+                                object-fit: cover; 
+                                display: block;">
+                </div>
             
                 <div class="choices-grid">
                     <button class="choice-btn" id="choice1">Song Choice A</button>
@@ -35,6 +76,63 @@
                     <button class="choice-btn" id="choice4">Song Choice D</button>
                 </div>
             </div>
+        </div>
+
+        <div class="nav-btns">
+            <button id="settings-btn">
+                <img src="https://media.istockphoto.com/id/1416937202/vector/settings-or-gear-icon-cog-setting-vector-illustration.jpg?s=612x612&w=0&k=20&c=3vVNW4ssuNPwKUMT5HSMEbUlknZmp5FeEBF1eZTzJYA="
+                     class="settings-container" title="Settings" alt="Settings">
+            </button>
+            {%if is_logged_in%}
+                <a href="/logout" title="Click to Logout">
+                    <div class="pfp-container">
+                        <img src="{{ pfp_url }}" alt="Profile" class="user-avatar">
+                    </div>
+                </a>
+            {% else %}
+                <a href="/login" title="Click to login">
+                    <div class="pfp-container anonymous">
+                        <img src="https://braverplayers.org/wp-content/uploads/2022/09/blank-pfp.png" alt="Anonymous User" class="user-avatar">
+                    </div>
+                </a>
+            {% endif %}
+        </div>
+
+        <div class="back">
+            <button id="back-home">Back</button>
+        </div>
+    </div>
+
+    <div id="end-screen" style="display: none">
+        <div class="titles">
+            <h1 id="end-title">Game Over</h1>
+        </div>
+        <div class = "end-stats">
+            <span id="final-score">Score: 0</span>
+        </div>
+        
+        <div class="nav-btns">
+            <button id="settings-btn">
+                <img src="https://media.istockphoto.com/id/1416937202/vector/settings-or-gear-icon-cog-setting-vector-illustration.jpg?s=612x612&w=0&k=20&c=3vVNW4ssuNPwKUMT5HSMEbUlknZmp5FeEBF1eZTzJYA="
+                     class="settings-container" title="Settings" alt="Settings">
+            </button>
+            {%if is_logged_in%}
+                <a href="/logout" title="Click to Logout">
+                    <div class="pfp-container">
+                        <img src="{{ pfp_url }}" alt="Profile" class="user-avatar">
+                    </div>
+                </a>
+            {% else %}
+                <a href="/login" title="Click to login">
+                    <div class="pfp-container anonymous">
+                        <img src="https://braverplayers.org/wp-content/uploads/2022/09/blank-pfp.png" alt="Anonymous User" class="user-avatar">
+                    </div>
+                </a>
+            {% endif %}
+        </div>
+        
+        <div class="back">
+            <button id="end-home">Home</button>
         </div>
     </div>
     <script src="{{ url_for('static', filename='script.js') }}"></script>

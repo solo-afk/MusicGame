@@ -82,4 +82,112 @@ body{
 
 }
 
+.titles{
+    font-size: 90px;
+    color: whitesmoke;
+    font-family: "Permanent Marker", cursive;
+}
+
+.nav-btns{
+    position: absolute;
+    top: 25px;
+    right: 25px;
+    display: flex;
+    flex-direction: row;  
+    gap: 5px; 
+}
+
+#acct-btn{
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: whitesmoke;
+    color: black;
+    border: 1px solid #333;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#settings-btn {
+    width: 50px; 
+    height: 50px;
+    border-radius: 20px;
+    overflow: hidden;
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    background-color: transparent;
+}
+
+.settings-container {
+    width: 50px;               /* Shrinks the icon down so it doesn't touch the borders */
+    height: 50px;
+    object-fit: contain;       /* Keeps the gear from stretching weirdly */
+}
+
+.play-container {
+    display: flex;
+    justify-content: center;  
+    align-items: center;      
+    min-height: 50vh;   
+    width: 100%;
+}
+
+.back{
+    border-radius: 10px;
+    margin: 10px;
+}
+
+.album-pic-container{
+    border-width: 2px;
+    border-color: whitesmoke;
+    border-style: solid;
+    width: 300px;
+    height: 300px;
+    border-radius: 20px;
+    margin: 0 auto;
+    overflow: hidden;
+}
+
+.pfp-container{
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    background-color: transparent;
+}
+
+.pfp-container:hover{
+    transform: scale(1.05);
+}
+.user-avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.pfp-container.anonymous {
+    background-color: #333;
+}
+
+.pfp-container.anonymous .user-avatar {
+    filter: grayscale(100%) opacity(70%);
+}
+
+
+
+
+
 
