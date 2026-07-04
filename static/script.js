@@ -216,6 +216,7 @@ const endHome = document.getElementById("end-home");
 
 backHome.addEventListener('click', function(){
     stopCountdown();
+    audioPlayer.pause();
     welcomeScreen.style.display = 'block';
     gameScreen.style.display='none';
 })
