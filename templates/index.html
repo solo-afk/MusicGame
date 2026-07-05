@@ -18,7 +18,7 @@
         </div>
         <div class="play-container">
             {% if is_logged_in %}
-                <button id="play-btn" data-auth="true">Play Game</button>
+                <button id="play-btn" data-auth="true">Start Game</button>
             {% else %}
                 <a href="/login" id="play-btn-link">
                     <button id="play-btn">Play Game</button>
@@ -44,6 +44,11 @@
                     </div>
                 </a>
             {% endif %}
+        </div>
+    </div>
+
+    <div id="countdown" style="display: none;">
+            <h1 id="nums">3</h1>
         </div>
     </div>
 

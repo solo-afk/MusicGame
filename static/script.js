@@ -12,6 +12,11 @@ const playBtn = document.getElementById('play-btn');
 const welcomeScreen = document.getElementById('start-screen');
 const gameScreen = document.getElementById('game-screen');
 const endScreen = document.getElementById('end-screen');
+const countScreen = document.getElementById('countdown');
+const count = document.getElementById('nums');
+const delay = ms => new Promise(res => setTimeout(res, ms));
+
+let isGameActive = false;
 
 const pics = [
     "https://media.tenor.com/KLyDgEHX2cQAAAAj/yellow-emoji-meme-meme-emoji.gif",
@@ -39,23 +44,30 @@ let timerId = null
 
 function startCountdown(){
     timeLeft = 15;
+    let currentSong = gameTracks[currentRound];
+    const ans = `${currentSong.title} - ${currentSong.artist}`;
     console.log("Timer start, remaining: "+timeLeft);
 
     timerId = setInterval(function() {
-        timeLeft--;
+        timeLeft -= 0.1;
         console.log("Time left: " + timeLeft);
 
         let widthpercent = (timeLeft/15) *100;
         timerBar.style.width = widthpercent + "%";
-
+    
         if (timeLeft == 0){
             console.log("Time's up");
+            choiceBtns.forEach(btn => {
+                if (btn.textContent === ans) {
+                    btn.style.backgroundColor = "green";
+                }
+            });
             stopCountdown();
             choiceBtns.forEach(btn => btn.disabled = true);
             console.log("Out of time!");
-            setTimeout(nextRound, 2000);
+            setTimeout(nextRound, 3000);
         }
-    }, 1000);
+    }, 100);
 }
 function stopCountdown(){
     clearInterval(timerId);
@@ -63,25 +75,6 @@ function stopCountdown(){
 
 //right or wrong answer; buttons are clickable now #EDIT: logic now in loadRound
 const choiceBtns = document.querySelectorAll('.choice-btn');
-/*
-choiceBtns.forEach(button => {
-    button.addEventListener('click', function() {
-        choiceBtns.forEach(btn => btn.disabled = true);
-        stopCountdown();
-
-        let currentSong = testPlaylist[currentRound];
-        if(button.textContent === currentSong.title){
-            console.log("Correct!");
-            score += 10 * timeLeft;
-            scoreDisplay.textContent = "Score: " + score;
-            button.style.backgroundColor = "#1DB954";
-        } else {
-            console.log("Incorrect!");
-            button.style.backgroundColor = "#ff4c4c";
-        }
-        setTimeout(nextRound, 2000);
-    })
-}) */
 
 function playTrack(url){
     if(audioPlayer){
@@ -98,7 +91,11 @@ function playTrack(url){
 
 }
 
-function loadRound(){
+async function loadRound(){
+    if(!isGameActive){
+        return;
+    }
+    
     if(audioPlayer){ //Stops msuic
         audioPlayer.pause();
     }
@@ -130,9 +127,27 @@ function loadRound(){
     const roundImage = pics.splice(randomIndex,1)[0];
     document.getElementById('album-cover').src = roundImage
     choices.sort(() => Math.random() - 0.5);
+//reset timerbar
+    timeLeft = 15;
+    let widthpercent = (timeLeft/15) *100;
+    timerBar.style.width = widthpercent + "%";
+
+    for (let i =0; i < choiceBtns.length; i++){
+        choiceBtns[i].textContent = choices[i];
+        choiceBtns[i].style.backgroundColor = "";
+        choiceBtns[i].disabled = false;
+    }
+    countScreen.style.display='flex';
+    count.textContent = "3";
+    await delay(1000); 
+    count.textContent = "2";
+    await delay(1000);
+    count.textContent = "1";
+    await delay(1000);
+    countScreen.style.display = 'none';
     
     //AUDIO
-    if (currentSong.preview_url){
+    if (currentSong.preview_url && isGameActive){
         playTrack(currentSong.preview_url);
         }
     else{
@@ -141,19 +156,15 @@ function loadRound(){
     startCountdown();
 
     for (let i =0; i < choiceBtns.length; i++){
-        choiceBtns[i].textContent = choices[i];
-        choiceBtns[i].style.backgroundColor = "";
-        choiceBtns[i].disabled = false;
-        
         //checks the right answer
         choiceBtns[i].onclick = function(){
             stopCountdown();
             let ans = `${currentSong.title} - ${currentSong.artist}`;
             if(choiceBtns[i].textContent === ans){
-                score += timeLeft*10;
+                score += Math.round(timeLeft*10);
                 scoreDisplay.textContent = "Score: "+score;
                 choiceBtns[i].style.backgroundColor = "green";
-            } else if(timeLeft === 0 || choiceBtns[i].textContent !== ans){
+            } else{
                 choiceBtns[i].style.backgroundColor = "red";
                 choiceBtns.forEach(btn => {
                     if (btn.textContent === ans) {
@@ -161,7 +172,7 @@ function loadRound(){
                     }
                 });
             } 
-
+    
             for(let btn of choiceBtns) btn.disabled = true;
 
             setTimeout(() => {
@@ -170,20 +181,23 @@ function loadRound(){
                 loadRound();
             }, 3000)
         }
+        
     }
+    
 }
 
 function nextRound(){
-    
     currentRound++;
     loadRound();
 }
 
 if(playBtn){
     playBtn.addEventListener('click', function(e){
+        playBtn.disabled = true;
         const isAuth = playBtn.getAttribute('data-auth') === 'true';
         if (isAuth) {
             e.preventDefault();
+            isGameActive = true;
             startGame();
         }
         
@@ -215,9 +229,17 @@ const backHome = document.getElementById("back-home");
 const endHome = document.getElementById("end-home");
 
 backHome.addEventListener('click', function(){
+    playBtn.disabled = false;
+    isGameActive = false;
+    score = 0;
+    scoreDisplay.textContent = '0';
+    currentRound = 0;
     stopCountdown();
+    audioPlayer.pause();
     welcomeScreen.style.display = 'block';
     gameScreen.style.display='none';
+    countScreen.style.display = 'none';
+    stopCountdown();
 })
 
 endHome.addEventListener('click', function(){
