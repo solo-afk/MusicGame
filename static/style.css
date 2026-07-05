@@ -138,6 +138,18 @@ body{
     align-items: center;      
     min-height: 50vh;   
     width: 100%;
+    transform: translateY(-200px);
+}
+
+#play-btn{
+    width: 150px;
+    height: 62.5px;
+    font-size: 20px;
+    border-width: 7px;
+    border-color: rgb(17, 17, 56);
+    border-radius: 20px;
+    background-color: rgb(222, 219, 219);
+    font-family: "Permanent Marker", cursive;
 }
 
 .back{
@@ -186,6 +198,22 @@ body{
     filter: grayscale(100%) opacity(70%);
 }
 
+#countdown{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.85); /* Dark background */
+    color: white;
+    z-index: 9999; /* Keeps it on top of the game */
+        
+        /* Centers the 3, 2, 1 perfectly */
+    display: flex; 
+    justify-content: center;
+    align-items: center;
+    font-size: 5rem;
+    }
 
 
 

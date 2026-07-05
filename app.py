@@ -95,7 +95,7 @@ def get_tracks():
         print(playlist_info)
         total_tracks = playlist_info['items']['total']
 
-        game_len = 10
+        game_len = 20
         max_offset = max(0, total_tracks - game_len)
         random_offset = random.randint(0, max_offset) if max_offset > 0 else 0
 
@@ -121,11 +121,12 @@ def get_tracks():
             artist = track['artists'][0]['name'] if track['artists'] else 'Unknown Artist'
             deezer_preview = get_deezer_preview(artist, track_name)
 
-            game_tracks.append({
-                'title': track_name,
-                'artist': artist,
-                'preview_url': deezer_preview
-            })
+            if deezer_preview:
+                game_tracks.append({
+                    'title': track_name,
+                    'artist': artist,
+                    'preview_url': deezer_preview
+                })
         print(f"--- DEBUG: Total tracks added to game_tracks: {len(game_tracks)} ---")
             
         random.shuffle(game_tracks)
