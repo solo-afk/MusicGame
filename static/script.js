@@ -15,9 +15,10 @@ const endScreen = document.getElementById('end-screen');
 const countScreen = document.getElementById('countdown');
 const count = document.getElementById('nums');
 const delay = ms => new Promise(res => setTimeout(res, ms));
+const FADE_CURVE = 2;
 
 let isGameActive = false;
-
+/*
 const pics = [
     "https://media.tenor.com/KLyDgEHX2cQAAAAj/yellow-emoji-meme-meme-emoji.gif",
     "https://i.pinimg.com/736x/9f/71/e8/9f71e80dfa2394d02a9562bda684af10.jpg",
@@ -37,38 +38,70 @@ const pics = [
     "https://i.redd.it/these-stupid-ass-hamster-that-i-keep-seeing-on-tiktok-v0-281rkyoq84yf1.jpg?width=1320&format=pjpg&auto=webp&s=f14fb202318d10c3ab9d51c913ca37735b23f47e"
 
 ]
-
+*/
 //The timer bar countdown
 let timeLeft = 15;
 let timerId = null
 
-function startCountdown(){
-    timeLeft = 15;
-    let currentSong = gameTracks[currentRound];
-    const ans = `${currentSong.title} - ${currentSong.artist}`;
-    console.log("Timer start, remaining: "+timeLeft);
+const ROUND_TIME = 15;
+const albumCover = document.getElementById('album-cover');
+const albumPlaceholder = document.getElementById('album-placeholder');
 
-    timerId = setInterval(function() {
-        timeLeft -= 0.1;
-        console.log("Time left: " + timeLeft);
+let selectedPlaylist = null;       // {id, name}
+let loading = false;
+const choiceScreen = document.getElementById('playlist-choice');
+const chooseBtn = document.getElementById('choose-btn');
+const choicePlayBtn = document.getElementById('choice-play-btn');
+const choiceBackBtn = document.getElementById('choice-back-btn');
 
-        let widthpercent = (timeLeft/15) *100;
-        timerBar.style.width = widthpercent + "%";
-    
-        if (timeLeft == 0){
-            console.log("Time's up");
-            choiceBtns.forEach(btn => {
-                if (btn.textContent === ans) {
-                    btn.style.backgroundColor = "green";
-                }
-            });
+function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+}
+function revealAnswer(ans, clickedBtn) {
+    choiceBtns.forEach(btn => {
+        btn.disabled = true;
+        if (btn.textContent === ans) btn.style.backgroundColor = 'green';
+        else if (btn === clickedBtn) btn.style.backgroundColor = 'red';
+    });
+    albumPlaceholder.style.transition = 'opacity 0.5s ease-out';
+    albumPlaceholder.style.opacity = 0;
+}
+
+function launchConfetti() {
+    const r = albumCover.getBoundingClientRect();
+    confetti({
+        particleCount: 150,
+        spread: 90,
+        origin: {
+            x: (r.left + r.width / 2) / window.innerWidth,
+            y: (r.top + r.height / 2) / window.innerHeight
+        }
+    });
+}
+
+function startCountdown() {
+    const song = gameTracks[currentRound];
+    const ans = `${song.title} - ${song.artist}`;
+    const startTime = Date.now();
+
+    timerId = setInterval(() => {
+        timeLeft = Math.max(0, ROUND_TIME - (Date.now() - startTime) / 1000);
+        timerBar.style.width = (timeLeft / ROUND_TIME * 100) + '%';
+        const progress = 1 - timeLeft / ROUND_TIME;                  
+        albumPlaceholder.style.opacity = 1 - Math.pow(progress, FADE_CURVE);
+
+        if (timeLeft <= 0) {
             stopCountdown();
-            choiceBtns.forEach(btn => btn.disabled = true);
-            console.log("Out of time!");
+            revealAnswer(ans, null);
             setTimeout(nextRound, 3000);
         }
-    }, 100);
+    }, 50);
 }
+
 function stopCountdown(){
     clearInterval(timerId);
 }
@@ -123,10 +156,12 @@ async function loadRound(){
         }
     }
 
-    const randomIndex = Math.floor(Math.random() * pics.length)
-    const roundImage = pics.splice(randomIndex,1)[0];
-    document.getElementById('album-cover').src = roundImage
-    choices.sort(() => Math.random() - 0.5);
+    shuffle(choices);
+    
+    albumCover.style.transition = 'none';
+    albumPlaceholder.style.transition = 'none';
+    albumPlaceholder.style.opacity = 1;
+    albumCover.src = currentSong.cover || '';
 //reset timerbar
     timeLeft = 15;
     let widthpercent = (timeLeft/15) *100;
@@ -157,30 +192,21 @@ async function loadRound(){
 
     for (let i =0; i < choiceBtns.length; i++){
         //checks the right answer
-        choiceBtns[i].onclick = function(){
+        choiceBtns[i].onclick = function () {
             stopCountdown();
-            let ans = `${currentSong.title} - ${currentSong.artist}`;
-            if(choiceBtns[i].textContent === ans){
-                score += Math.round(timeLeft*10);
-                scoreDisplay.textContent = "Score: "+score;
-                choiceBtns[i].style.backgroundColor = "green";
-            } else{
-                choiceBtns[i].style.backgroundColor = "red";
-                choiceBtns.forEach(btn => {
-                    if (btn.textContent === ans) {
-                        btn.style.backgroundColor = "green";
-                    }
-                });
-            } 
-    
-            for(let btn of choiceBtns) btn.disabled = true;
-
+            const ans = `${currentSong.title} - ${currentSong.artist}`;
+            if (choiceBtns[i].textContent === ans) {
+                score += Math.round(timeLeft * 10);
+                scoreDisplay.textContent = "Score: " + score;
+                launchConfetti();
+            }
+            revealAnswer(ans, choiceBtns[i]);
             setTimeout(() => {
-                audioPlayer.pause()
+                audioPlayer.pause();
                 currentRound++;
                 loadRound();
-            }, 3000)
-        }
+            }, 3000);
+        };
         
     }
     
@@ -191,45 +217,115 @@ function nextRound(){
     loadRound();
 }
 
-if(playBtn){
-    playBtn.addEventListener('click', function(e){
-        playBtn.disabled = true;
-        const isAuth = playBtn.getAttribute('data-auth') === 'true';
-        if (isAuth) {
-            e.preventDefault();
-            isGameActive = true;
-            startGame();
-        }
-        
-    })
+async function loadCardRow(containerId, apiPath, emptyMessage) {
+    const row = document.getElementById(containerId);
+    row.replaceChildren();
+
+    let items = [];
+    try {
+        const res = await fetch(apiPath);
+        items = await res.json();
+    } catch (err) {
+        console.error(err);
+    }
+    if (!Array.isArray(items) || !items.length) {
+        row.textContent = emptyMessage;
+        return;
+    }
+
+    items.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'playlist-card';
+        if (selectedPlaylist && selectedPlaylist.id === p.id) card.classList.add('selected');
+
+        const img = document.createElement('img');
+        img.src = p.image || '';
+        const name = document.createElement('span');
+        name.textContent = p.name;
+        card.append(img, name);
+
+        card.addEventListener('click', () => {
+            selectedPlaylist = { type: p.type || 'playlist', id: p.id, name: p.name };
+            choiceScreen.querySelectorAll('.playlist-card')
+                .forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            document.querySelectorAll('.chosen-label')
+                .forEach(el => el.textContent = 'Playlist: ' + p.name);
+        });
+        row.appendChild(card);
+    });
+}
+async function showPlaylistChoice() {
+    welcomeScreen.style.display = 'none';
+    choiceScreen.style.display = 'block';
+    loadCardRow("user-playlists", '/api/get_user_playlists', "No usable playlists found (only playlists you own or collaborate on show up).")
+    loadCardRow('recent-albums', '/api/get_new_from_artists', "No recent releases found.");
+    //loadCardRow('custom-playlist', '/api/search', "Nothing Found");
 }
 
-function startGame(){
-    fetch('/api/get_tracks')
-        .then(response => response.json())
+function runSearch() {
+    const q = document.getElementById('search-input').value.trim();
+    if (!q) return;
+    loadCardRow('search-results', `/api/search?q=${encodeURIComponent(q)}`, 'No albums found.');
+}
+document.getElementById('search-btn').addEventListener('click', runSearch);
+document.getElementById('search-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') runSearch();
+});
+
+if (playBtn) {
+    playBtn.addEventListener('click', function (e) {
+        if (playBtn.getAttribute('data-auth') !== 'true') return;   // logged out: the <a> handles login
+        e.preventDefault();
+        if (!selectedPlaylist) showPlaylistChoice();
+        else startGame(selectedPlaylist);
+    });
+}
+
+if (chooseBtn) chooseBtn.addEventListener('click', showPlaylistChoice);
+
+function startGame(playlistId) {
+    if (loading) return;
+    loading = true;
+    isGameActive = true;
+
+    fetch(`/api/get_tracks?type=${playlistId.type}&id=${encodeURIComponent(playlistId.id)}`)
+        .then(r => r.json())
         .then(data => {
-            if(data.error){
-                alert("Failed to load tracks. Try logging out and back in");
+            if (data.error || data.length < 4) {
+                alert(data.error ? "Failed to load tracks. Try again or pick another playlist."
+                                 : "That playlist doesn't have enough playable songs (need at least 4).");
+                isGameActive = false;
                 return;
             }
-
             gameTracks = data;
             currentRound = 0;
             score = 0;
-            
+            scoreDisplay.textContent = "Score: 0";
             welcomeScreen.style.display = 'none';
+            choiceScreen.style.display = 'none';
             gameScreen.style.display = 'block';
-
             loadRound();
         })
-        .catch(err => console.error("Error starting game", err));
+        .catch(err => { console.error("Error starting game", err); isGameActive = false; })
+        .finally(() => { loading = false; });
 }
+
+choicePlayBtn.addEventListener('click', () => {
+    if (!selectedPlaylist) { alert("Pick a playlist first."); return; }
+    startGame(selectedPlaylist);
+});
+
+choiceBackBtn.addEventListener('click', () => {
+    choiceScreen.style.display = 'none';
+    welcomeScreen.style.display = 'block';
+});
 
 const backHome = document.getElementById("back-home");
 const endHome = document.getElementById("end-home");
 
 backHome.addEventListener('click', function(){
-    playBtn.disabled = false;
+    //playBtn.disabled = false;
     isGameActive = false;
     score = 0;
     scoreDisplay.textContent = '0';
